@@ -1,11 +1,11 @@
 import React from 'react';
 import Loading from "./Loading"; //App.js와 같은 디렉토리에 있는 Loading.js파일을 import
+import Weather from "./Weather";
 import * as Location from "expo-location"; //expo홈페이지-documentation-location에서 복붙해옴 
 import {Alert} from "react-native"; //경고창 띄우기 위해
 import axios from "axios";
 
 const API_KEY = "a938c44e3a0c4847c76fc4e9dbb92aaf";
-
 
 export default class extends React.Component { 
   //class뒤에 클래스이름(App) 안써도 됨
@@ -17,10 +17,11 @@ export default class extends React.Component {
 
   getWeather = async(latitude, longitude) => {
     const {data} = await axios.get(
-      `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`
+      `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
     );//백틱(`)으로 묶어줘야함(변수를 문자열에 포함시키기 위해)
     //${latitude} : template strings(자바스크립트)(변수)
-    console.log(data);
+    //console.log(data); //object형태의 data를 콘솔에서 확인
+    this.setState({isLoading:false, temp: data.main.temp}); //우리가 가져오는 온도는 data.main.temp
   };
 
   getLocation = async() => { //getLocation 함수
@@ -48,10 +49,11 @@ export default class extends React.Component {
     this.getLocation();
   }
  
-
   render() {
-    const {isLoading} = this.state;
-    return isLoading? <Loading /> : null; //isLoading이 true면 <Loading />, false면 null리턴
+    const {isLoading, temp} = this.state;
+    return isLoading? <Loading /> : <Weather temp={Math.round(temp)} />; 
+    //isLoading이 true면 <Loading />, false면 null리턴
+    //Math.round(temp) : 소수점까지 표현되는 온도를 반올림해서 1의자리까지만 출력하도록
+    //temp={temp} : 소수점자리까지 출력
   }
 }
-
